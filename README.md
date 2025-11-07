@@ -1,12 +1,11 @@
-# 📦 PACOTE COMPLETO - JOGO DE LABIRINTO
+# 📦 PACOTE COMPLETO - JOGO DAS PORTAS
 ## Tudo o que precisas para ensinar!
 
 ---
 
-## 🎯 O QUE RECEBES
 
 ### **1. Site Interativo HTML** 🌐
-📄 `guia_interativo.html`
+
 
 **O que faz:**
 - Guia completo das 2 sessões (4 horas)
