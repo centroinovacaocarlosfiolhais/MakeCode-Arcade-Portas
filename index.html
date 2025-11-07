@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Aula - Jogo de Labirinto | MakeCode Arcade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .session-selector {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .session-btn {
+            padding: 15px 30px;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #667eea;
+            transition: all 0.3s;
+        }
+
+        .session-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .session-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .main-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 600px;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .step-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .step-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .step-duration {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .content-section h3 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .content-section p, .content-section ul {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .content-section ul {
+            padding-left: 25px;
+        }
+
+        .content-section li {
+            margin-bottom: 10px;
+        }
+
+        .code-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .code-container pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .image-upload-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+            margin: 20px 0;
+        }
+
+        .image-upload-section h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-area {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .uploaded-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .uploaded-image.show {
+            display: block;
+        }
+
+        .remove-image-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .remove-image-btn.show {
+            display: inline-block;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .prev-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .prev-btn:hover {
+            background: #5a6268;
+            transform: translateX(-5px);
+        }
+
+        .next-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .next-btn:hover {
+            background: #764ba2;
+            transform: translateX(5px);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .export-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .export-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.5s;
+        }
+
+        .steps-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .step-card {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .step-card:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .step-card.completed {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.5s;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        /* Syntax highlighting */
+        .keyword { color: #c586c0; }
+        .function { color: #dcdcaa; }
+        .string { color: #ce9178; }
+        .number { color: #b5cea8; }
+        .comment { color: #6a9955; font-style: italic; }
+        .variable { color: #9cdcfe; }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .session-selector,
+            .navigation,
+            .action-buttons,
+            .image-upload-section button {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .navigation {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Jogo de Labirinto - MakeCode Arcade</h1>
+            <p class="subtitle">Guia Completo para Aulas | 2 Sessões de 2 Horas</p>
+            
+            <div class="session-selector">
+                <button class="session-btn active" onclick="selectSession(1)">📅 Sessão 1 (2h)</button>
+                <button class="session-btn" onclick="selectSession(2)">📅 Sessão 2 (2h)</button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- SESSÃO 1 -->
+            <div id="session1" class="session-content">
+                
+                <!-- PASSO 1 -->
+                <div class="step active" data-step="1">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 1 - PASSO 1</div>
+                        <div class="step-title">Introdução e Setup</div>
+                        <div class="step-duration">⏱️ Duração: 15 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 Objetivos</h3>
+                        <ul>
+                            <li>Apresentar o jogo completo funcionando</li>
+                            <li>Explicar a mecânica do jogo</li>
+                            <li>Preparar o ambiente MakeCode Arcade</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>👨‍🏫 Atividades</h3>
+                        <p><strong>1. Demonstração do Jogo (5 min)</strong></p>
+                        <ul>
+                            <li>Jogar 1-2 minutos mostrando as mecânicas</li>
+                            <li>Mostrar os 3 níveis</li>
+                            <li>Explicar: chave → inimigos → porta → próximo nível</li>
+                        </ul>
+
+                        <p><strong>2. Setup do Ambiente (10 min)</strong></p>
+                        <ul>
+                            <li>Abrir https://arcade.makecode.com/</li>
+                            <li>Criar novo projeto: "Labirinto Misterioso"</li>
+                            <li>Mudar para JavaScript</li>
+                            <li>Apagar código existente</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 Dica:</strong> Perguntar aos alunos que jogos parecidos conhecem para criar engagement!
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-1">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-1" accept="image/*" onchange="handleImageUpload(event, 1)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-1" onclick="removeImage(1)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-1" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()" disabled>⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 2 -->
+                <div class="step" data-step="2">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 1 - PASSO 2</div>
+                        <div class="step-title">Declarar Variáveis</div>
+                        <div class="step-duration">⏱️ Duração: 10 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que vamos fazer</h3>
+                        <p>Criar as "caixas" onde vamos guardar toda a informação do jogo.</p>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 Analogia:</strong> Variáveis são como caixas com etiquetas. Uma caixa "jogador", uma caixa "chave", etc.
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código para Copiar</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// JOGO DE LABIRINTO - VERSÃO BLOCOS SIMPLES</span>
+<span class="comment">// MakeCode Arcade</span>
+
+<span class="comment">// ========== PASSO 1: DECLARAR VARIÁVEIS ==========</span>
+<span class="keyword">let</span> <span class="variable">jogador</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span>
+<span class="keyword">let</span> <span class="variable">chave</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span>
+<span class="keyword">let</span> <span class="variable">porta</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span>
+<span class="keyword">let</span> <span class="variable">nivelAtual</span> = <span class="number">1</span>
+<span class="keyword">let</span> <span class="variable">chaveApanhada</span> = <span class="keyword">false</span>
+<span class="keyword">let</span> <span class="variable">boss</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span>
+<span class="keyword">let</span> <span class="variable">vidaBoss</span> = <span class="number">5</span>
+<span class="keyword">let</span> <span class="variable">inimigo1</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span>
+<span class="keyword">let</span> <span class="variable">inimigo2</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span>
+<span class="keyword">let</span> <span class="variable">inimigo3</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span>
+<span class="keyword">let</span> <span class="variable">inimigo4</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span>
+<span class="keyword">let</span> <span class="variable">projetil</span>: <span class="keyword">Sprite</span> = <span class="keyword">null</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>📖 Explicação Linha a Linha</h3>
+                        <ul>
+                            <li><code>let jogador: Sprite = null</code> → Cria variável para o jogador (ainda vazia)</li>
+                            <li><code>let nivelAtual = 1</code> → Começamos no nível 1</li>
+                            <li><code>let chaveApanhada = false</code> → Ainda não apanhámos a chave</li>
+                            <li><code>: Sprite</code> → Diz que é um personagem do jogo</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Importante:</strong> Todas as variáveis devem estar NO INÍCIO do código!
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-2">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-2" accept="image/*" onchange="handleImageUpload(event, 2)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-2" onclick="removeImage(2)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-2" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 3 -->
+                <div class="step" data-step="3">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 1 - PASSO 3</div>
+                        <div class="step-title">Criar o Jogador</div>
+                        <div class="step-duration">⏱️ Duração: 15 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que vamos fazer</h3>
+                        <p>Criar o nosso personagem (uma bolinha amarela) e permitir que se mova com as setas.</p>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código para Copiar</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 2: CRIAR O JOGADOR ==========</span>
+<span class="variable">jogador</span> = sprites.<span class="function">create</span>(img<span class="string">`
+    . . . . . 5 5 5 5 5 5 . . . . .
+    . . . . 5 5 5 5 5 5 5 5 . . . .
+    . . . 5 5 5 5 5 5 5 5 5 5 . . .
+    . . 5 5 5 5 5 5 5 5 5 5 5 5 . .
+    . . 5 5 5 f f 5 5 f f 5 5 5 . .
+    . . 5 5 5 f f 5 5 f f 5 5 5 . .
+    . . 5 5 5 5 5 5 5 5 5 5 5 5 . .
+    . . 5 5 5 5 5 5 5 5 5 5 5 5 . .
+    . . 5 5 5 5 f f f f 5 5 5 5 . .
+    . . 5 5 5 5 5 5 5 5 5 5 5 5 . .
+    . . . 5 5 5 5 5 5 5 5 5 5 . . .
+    . . . . 5 5 5 5 5 5 5 5 . . . .
+    . . . . . 5 5 5 5 5 5 . . . . .
+`</span>, SpriteKind.Player)
+
+<span class="variable">jogador</span>.<span class="function">setPosition</span>(<span class="number">80</span>, <span class="number">60</span>)
+controller.<span class="function">moveSprite</span>(<span class="variable">jogador</span>, <span class="number">80</span>, <span class="number">80</span>)
+<span class="variable">jogador</span>.<span class="function">setStayInScreen</span>(<span class="keyword">true</span>)
+info.<span class="function">setLife</span>(<span class="number">3</span>)
+info.<span class="function">setScore</span>(<span class="number">0</span>)
+scene.<span class="function">setBackgroundColor</span>(<span class="number">9</span>)</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>📖 Explicação</h3>
+                        <ul>
+                            <li><code>sprites.create()</code> → Cria um sprite com a imagem desenhada</li>
+                            <li><code>setPosition(80, 60)</code> → Coloca no centro do ecrã</li>
+                            <li><code>moveSprite(jogador, 80, 80)</code> → Move com velocidade 80</li>
+                            <li><code>setStayInScreen(true)</code> → Não sai do ecrã</li>
+                            <li><code>setLife(3)</code> → 3 vidas ❤️❤️❤️</li>
+                            <li><code>setScore(0)</code> → Pontuação começa em 0</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <strong>✅ Teste:</strong> Clica no Play ▶️ e tenta mover o jogador com as setas!
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-3">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-3" accept="image/*" onchange="handleImageUpload(event, 3)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-3" onclick="removeImage(3)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-3" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 4 -->
+                <div class="step" data-step="4">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 1 - PASSO 4</div>
+                        <div class="step-title">Funções: Chave e Porta</div>
+                        <div class="step-duration">⏱️ Duração: 20 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que são Funções?</h3>
+                        <p>Funções são como "receitas". Quando dizes <code>criarChave()</code>, o computador segue a receita e cria a chave!</p>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código: Função Criar Chave</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 3: FUNCAO PARA CRIAR CHAVE ==========</span>
+<span class="keyword">function</span> <span class="function">criarChave</span>() {
+    <span class="variable">chave</span> = sprites.<span class="function">create</span>(img<span class="string">`
+        . . . . . . . . . . . . . . . .
+        . . . . . 5 5 5 5 5 . . . . . .
+        . . . . 5 5 5 5 5 5 5 . . . . .
+        . . . 5 5 5 f f 5 5 5 5 . . . .
+        . . . 5 5 f 1 1 f 5 5 5 . . . .
+        . . . 5 5 f 1 1 f 5 5 5 . . . .
+        . . . 5 5 5 f f 5 5 5 5 . . . .
+        . . . . 5 5 5 5 5 5 5 . . . . .
+        . . . . . 5 5 5 5 5 . . . . . .
+        . . . . . . 5 . 5 . . . . . . .
+        . . . . . . 5 . 5 . . . . . . .
+        . . . . . . 5 5 5 . . . . . . .
+    `</span>, SpriteKind.Food)
+    <span class="variable">chave</span>.<span class="function">setPosition</span>(<span class="function">randint</span>(<span class="number">20</span>, <span class="number">140</span>), <span class="function">randint</span>(<span class="number">20</span>, <span class="number">100</span>))
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código: Função Criar Porta</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 4: FUNCAO PARA CRIAR PORTA ==========</span>
+<span class="keyword">function</span> <span class="function">criarPorta</span>() {
+    <span class="variable">porta</span> = sprites.<span class="function">create</span>(img<span class="string">`
+        . . 8 8 8 8 8 8 8 8 8 8 . .
+        . . 8 7 7 7 7 7 7 7 7 8 . .
+        . . 8 7 7 7 7 7 7 7 7 8 . .
+        . . 8 7 7 7 7 7 7 7 7 8 . .
+        . . 8 7 7 e e e 7 7 7 8 . .
+        . . 8 7 7 e 1 e 7 7 7 8 . .
+        . . 8 7 7 e e e 7 7 7 8 . .
+        . . 8 7 7 7 7 7 7 7 7 8 . .
+        . . 8 7 7 7 7 7 7 7 7 8 . .
+        . . 8 7 7 7 7 7 7 7 7 8 . .
+        . . 8 7 7 7 7 7 7 7 7 8 . .
+        . . 8 8 8 8 8 8 8 8 8 8 . .
+    `</span>, SpriteKind.Enemy)
+    <span class="variable">porta</span>.<span class="function">setPosition</span>(<span class="function">randint</span>(<span class="number">20</span>, <span class="number">140</span>), <span class="function">randint</span>(<span class="number">20</span>, <span class="number">100</span>))
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 Nota:</strong> <code>randint(20, 140)</code> escolhe um número aleatório entre 20 e 140!
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-4">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-4" accept="image/*" onchange="handleImageUpload(event, 4)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-4" onclick="removeImage(4)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-4" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 5 -->
+                <div class="step" data-step="5">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 1 - PASSO 5</div>
+                        <div class="step-title">Funções: Inimigos</div>
+                        <div class="step-duration">⏱️ Duração: 30 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que vamos fazer</h3>
+                        <p>Criar 3 funções para os inimigos:</p>
+                        <ul>
+                            <li>Destruir inimigos</li>
+                            <li>Criar 2 inimigos (Nível 1)</li>
+                            <li>Criar 4 inimigos (Nível 2)</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código: Destruir Inimigos</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 5: FUNCAO PARA DESTRUIR INIMIGOS ==========</span>
+<span class="keyword">function</span> <span class="function">destruirInimigos</span>() {
+    <span class="keyword">if</span> (<span class="variable">inimigo1</span>) {
+        <span class="variable">inimigo1</span>.<span class="function">destroy</span>()
+    }
+    <span class="keyword">if</span> (<span class="variable">inimigo2</span>) {
+        <span class="variable">inimigo2</span>.<span class="function">destroy</span>()
+    }
+    <span class="keyword">if</span> (<span class="variable">inimigo3</span>) {
+        <span class="variable">inimigo3</span>.<span class="function">destroy</span>()
+    }
+    <span class="keyword">if</span> (<span class="variable">inimigo4</span>) {
+        <span class="variable">inimigo4</span>.<span class="function">destroy</span>()
+    }
+    <span class="keyword">if</span> (<span class="variable">boss</span>) {
+        <span class="variable">boss</span>.<span class="function">destroy</span>()
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Atenção:</strong> O código dos Inimigos Nível 1 e 2 é longo. Copia com calma!
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código: Inimigos Nível 1 (2 inimigos)</h3>
+                        <p><em>Código longo - ver ficheiro completo ou copiar da apresentação</em></p>
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-5">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-5" accept="image/*" onchange="handleImageUpload(event, 5)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-5" onclick="removeImage(5)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-5" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 6 -->
+                <div class="step" data-step="6">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 1 - PASSO 6</div>
+                        <div class="step-title">Pausa e Revisão</div>
+                        <div class="step-duration">⏱️ Duração: 10 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>☕ Intervalo</h3>
+                        <p>Tempo para:</p>
+                        <ul>
+                            <li>Esticar as pernas</li>
+                            <li>Tirar dúvidas individuais</li>
+                            <li>Ajudar quem ficou para trás</li>
+                            <li>Beber água</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <h3>✅ Checklist do que fizemos</h3>
+                        <ul>
+                            <li>✅ Declarámos todas as variáveis</li>
+                            <li>✅ Criámos o jogador</li>
+                            <li>✅ Criámos funções para chave e porta</li>
+                            <li>✅ Criámos funções para inimigos</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>🔜 O que vem a seguir (Sessão 2)</h3>
+                        <ul>
+                            <li>Criar o Boss</li>
+                            <li>Programar os tiros</li>
+                            <li>Fazer as colisões funcionarem</li>
+                            <li>Testar e customizar!</li>
+                        </ul>
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">➡️ Sessão 2</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SESSÃO 2 -->
+            <div id="session2" class="session-content" style="display: none;">
+                
+                <!-- PASSO 7 -->
+                <div class="step" data-step="7">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 2 - PASSO 7</div>
+                        <div class="step-title">Criar o Boss</div>
+                        <div class="step-duration">⏱️ Duração: 15 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que vamos fazer</h3>
+                        <p>Criar o boss laranja gigante que aparece no nível 3!</p>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código para Copiar</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 8: FUNCAO PARA CRIAR BOSS ==========</span>
+<span class="keyword">function</span> <span class="function">criarBoss</span>() {
+    <span class="variable">boss</span> = sprites.<span class="function">create</span>(img<span class="string">`
+        . . . . . . . . . . . . . . . .
+        . . . 7 7 7 7 7 7 7 7 7 . . . .
+        . . 7 7 7 7 7 7 7 7 7 7 7 . . .
+        . 7 7 7 7 7 7 7 7 7 7 7 7 7 . .
+        . 7 7 f f 7 7 7 7 f f 7 7 7 . .
+        . 7 7 f 2 f 7 7 f 2 f 7 7 7 . .
+        . 7 7 7 7 7 7 7 7 7 7 7 7 7 . .
+        . 7 7 7 f f f f f f 7 7 7 7 . .
+        . 7 7 7 f 2 2 2 2 f 7 7 7 7 . .
+        . 7 7 7 7 f f f f 7 7 7 7 7 . .
+        . . 7 7 7 7 7 7 7 7 7 7 7 . . .
+        . . . 7 7 7 7 7 7 7 7 7 . . . .
+    `</span>, SpriteKind.Enemy)
+    <span class="variable">boss</span>.<span class="function">setPosition</span>(<span class="number">80</span>, <span class="number">60</span>)
+    <span class="variable">boss</span>.<span class="function">follow</span>(<span class="variable">jogador</span>, <span class="number">45</span>)
+    <span class="variable">vidaBoss</span> = <span class="number">5</span>
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 Características do Boss:</strong>
+                        <ul>
+                            <li>Velocidade 45 (mais rápido que todos!)</li>
+                            <li>5 pontos de vida</li>
+                            <li>Reaparece quando morre</li>
+                        </ul>
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-7">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-7" accept="image/*" onchange="handleImageUpload(event, 7)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-7" onclick="removeImage(7)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-7" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 8 -->
+                <div class="step" data-step="8">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 2 - PASSO 8</div>
+                        <div class="step-title">Disparar Projéteis</div>
+                        <div class="step-duration">⏱️ Duração: 20 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que vamos fazer</h3>
+                        <p>Programar o botão A para disparar na direção que estamos a mover!</p>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código para Copiar</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 9: DISPARAR PROJETIL ==========</span>
+controller.A.<span class="function">onEvent</span>(ControllerButtonEvent.Pressed, <span class="keyword">function</span> () {
+    <span class="variable">projetil</span> = sprites.<span class="function">createProjectileFromSprite</span>(img<span class="string">`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . 5 5 5 . . . . . . . .
+        . . . . 5 5 5 5 5 . . . . . . .
+        . . . . 5 5 4 5 5 . . . . . . .
+        . . . . 5 5 5 5 5 . . . . . . .
+        . . . . . 5 5 5 . . . . . . . .
+    `</span>, <span class="variable">jogador</span>, <span class="number">0</span>, <span class="number">0</span>)
+    
+    <span class="keyword">if</span> (controller.left.<span class="function">isPressed</span>()) {
+        <span class="variable">projetil</span>.vx = <span class="number">-150</span>
+    } <span class="keyword">else if</span> (controller.right.<span class="function">isPressed</span>()) {
+        <span class="variable">projetil</span>.vx = <span class="number">150</span>
+    } <span class="keyword">else if</span> (controller.up.<span class="function">isPressed</span>()) {
+        <span class="variable">projetil</span>.vy = <span class="number">-150</span>
+    } <span class="keyword">else if</span> (controller.down.<span class="function">isPressed</span>()) {
+        <span class="variable">projetil</span>.vy = <span class="number">150</span>
+    } <span class="keyword">else</span> {
+        <span class="variable">projetil</span>.vx = <span class="number">150</span>
+    }
+})</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>📖 Explicação</h3>
+                        <ul>
+                            <li><code>vx = 150</code> → Velocidade para a direita</li>
+                            <li><code>vx = -150</code> → Velocidade para a esquerda</li>
+                            <li><code>vy = -150</code> → Velocidade para cima</li>
+                            <li><code>vy = 150</code> → Velocidade para baixo</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <strong>✅ Teste:</strong> Joga e tenta disparar! Pressiona A enquanto moves!
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-8">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-8" accept="image/*" onchange="handleImageUpload(event, 8)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-8" onclick="removeImage(8)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-8" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 9 -->
+                <div class="step" data-step="9">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 2 - PASSO 9</div>
+                        <div class="step-title">Eventos: Apanhar Chave</div>
+                        <div class="step-duration">⏱️ Duração: 15 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que vamos fazer</h3>
+                        <p>Programar o que acontece quando o jogador toca na chave!</p>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código para Copiar</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 10: APANHAR A CHAVE ==========</span>
+sprites.<span class="function">onOverlap</span>(SpriteKind.Player, SpriteKind.Food, <span class="keyword">function</span> (sprite, otherSprite) {
+    <span class="variable">chave</span>.<span class="function">destroy</span>()
+    <span class="variable">chaveApanhada</span> = <span class="keyword">true</span>
+    info.<span class="function">changeScoreBy</span>(<span class="number">20</span>)
+    game.<span class="function">splash</span>(<span class="string">"Chave apanhada!"</span>)
+    <span class="function">criarPorta</span>()
+    
+    <span class="keyword">if</span> (<span class="variable">nivelAtual</span> == <span class="number">1</span>) {
+        <span class="function">criarInimigosNivel1</span>()
+    } <span class="keyword">else if</span> (<span class="variable">nivelAtual</span> == <span class="number">2</span>) {
+        <span class="function">criarInimigosNivel2</span>()
+    } <span class="keyword">else if</span> (<span class="variable">nivelAtual</span> == <span class="number">3</span>) {
+        <span class="function">criarBoss</span>()
+        game.<span class="function">splash</span>(<span class="string">"BOSS CHEGOU!"</span>)
+    }
+})</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 O que acontece:</strong>
+                        <ul>
+                            <li>Chave desaparece</li>
+                            <li>Ganhas 20 pontos</li>
+                            <li>Porta aparece</li>
+                            <li>Inimigos aparecem (conforme o nível)</li>
+                        </ul>
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-9">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-9" accept="image/*" onchange="handleImageUpload(event, 9)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-9" onclick="removeImage(9)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-9" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 10 -->
+                <div class="step" data-step="10">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 2 - PASSO 10</div>
+                        <div class="step-title">Eventos: Acertar Inimigos</div>
+                        <div class="step-duration">⏱️ Duração: 20 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que vamos fazer</h3>
+                        <p>Programar o que acontece quando o projétil acerta num inimigo ou no boss!</p>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código para Copiar</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 11: PROJETIL ACERTA INIMIGO ==========</span>
+sprites.<span class="function">onOverlap</span>(SpriteKind.Projectile, SpriteKind.Enemy, <span class="keyword">function</span> (sprite, otherSprite) {
+    sprite.<span class="function">destroy</span>()
+    
+    <span class="keyword">if</span> (otherSprite == <span class="variable">boss</span>) {
+        <span class="variable">vidaBoss</span> = <span class="variable">vidaBoss</span> - <span class="number">1</span>
+        <span class="keyword">if</span> (<span class="variable">vidaBoss</span> <= <span class="number">0</span>) {
+            info.<span class="function">changeScoreBy</span>(<span class="number">100</span>)
+            game.<span class="function">splash</span>(<span class="string">"Boss derrotado!"</span>, <span class="string">"Ele voltou!"</span>)
+            <span class="variable">vidaBoss</span> = <span class="number">5</span>
+            <span class="variable">boss</span>.<span class="function">setPosition</span>(<span class="variable">porta</span>.x, <span class="variable">porta</span>.y)
+        }
+    } <span class="keyword">else if</span> (otherSprite != <span class="variable">porta</span>) {
+        otherSprite.<span class="function">destroy</span>(effects.fire, <span class="number">100</span>)
+        info.<span class="function">changeScoreBy</span>(<span class="number">10</span>)
+    }
+})</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Mecânica Especial:</strong> O boss não morre! Ele reaparece na porta com 5 vidas!
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-10">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-10" accept="image/*" onchange="handleImageUpload(event, 10)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-10" onclick="removeImage(10)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-10" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 11 -->
+                <div class="step" data-step="11">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 2 - PASSO 11</div>
+                        <div class="step-title">Eventos: Colisões</div>
+                        <div class="step-duration">⏱️ Duração: 20 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 O que vamos fazer</h3>
+                        <p>Programar 2 situações:</p>
+                        <ul>
+                            <li>Quando entramos na porta (passar de nível)</li>
+                            <li>Quando inimigo toca no jogador (perder vida)</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código para Copiar</h3>
+                        <p><em>Código longo - este é o último bloco grande!</em></p>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 12: ENTRAR NA PORTA OU TOCAR INIMIGO ==========</span>
+sprites.<span class="function">onOverlap</span>(SpriteKind.Player, SpriteKind.Enemy, <span class="keyword">function</span> (sprite, otherSprite) {
+    <span class="keyword">if</span> (otherSprite == <span class="variable">porta</span> && <span class="variable">chaveApanhada</span>) {
+        <span class="variable">porta</span>.<span class="function">destroy</span>()
+        <span class="function">destruirInimigos</span>()
+        
+        <span class="keyword">if</span> (<span class="variable">nivelAtual</span> < <span class="number">3</span>) {
+            info.<span class="function">changeScoreBy</span>(<span class="number">50</span>)
+            game.<span class="function">splash</span>(<span class="string">"Nivel "</span> + <span class="variable">nivelAtual</span> + <span class="string">" completo!"</span>)
+            <span class="variable">nivelAtual</span> = <span class="variable">nivelAtual</span> + <span class="number">1</span>
+            <span class="variable">chaveApanhada</span> = <span class="keyword">false</span>
+            <span class="variable">jogador</span>.<span class="function">setPosition</span>(<span class="number">80</span>, <span class="number">60</span>)
+            <span class="function">criarChave</span>()
+        } <span class="keyword">else</span> {
+            game.<span class="function">over</span>(<span class="keyword">true</span>, effects.confetti)
+        }
+    } <span class="keyword">else if</span> (otherSprite != <span class="variable">porta</span>) {
+        info.<span class="function">changeLifeBy</span>(<span class="number">-1</span>)
+        scene.<span class="function">cameraShake</span>(<span class="number">4</span>, <span class="number">200</span>)
+        otherSprite.<span class="function">setPosition</span>(<span class="function">randint</span>(<span class="number">10</span>, <span class="number">150</span>), <span class="function">randint</span>(<span class="number">10</span>, <span class="number">110</span>))
+        <span class="function">pause</span>(<span class="number">500</span>)
+    }
+})</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-11">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-11" accept="image/*" onchange="handleImageUpload(event, 11)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-11" onclick="removeImage(11)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-11" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 12 -->
+                <div class="step" data-step="12">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 2 - PASSO 12</div>
+                        <div class="step-title">Iniciar o Jogo</div>
+                        <div class="step-duration">⏱️ Duração: 5 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎯 Último Passo!</h3>
+                        <p>Código final para começar o jogo!</p>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>💻 Código para Copiar</h3>
+                        <div class="code-container">
+                            <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            <pre><code><span class="comment">// ========== PASSO 13: INICIAR O JOGO ==========</span>
+game.<span class="function">splash</span>(<span class="string">"LABIRINTO"</span>)
+game.<span class="function">splash</span>(<span class="string">"Encontra a chave!"</span>)
+<span class="function">criarChave</span>()</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <h3>🎉 PARABÉNS!</h3>
+                        <p>O jogo está completo! Agora é hora de:</p>
+                        <ul>
+                            <li>✅ Testar se tudo funciona</li>
+                            <li>✅ Jogar os 3 níveis</li>
+                            <li>✅ Corrigir erros (se houver)</li>
+                            <li>✅ Preparar para customizar!</li>
+                        </ul>
+                    </div>
+
+                    <div class="image-upload-section">
+                        <h4>📸 Adicionar Screenshot dos Blocos</h4>
+                        <div class="upload-area">
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="image-12">
+                                    📤 Escolher Imagem
+                                </label>
+                                <input type="file" id="image-12" accept="image/*" onchange="handleImageUpload(event, 12)">
+                            </div>
+                            <button class="remove-image-btn" id="remove-12" onclick="removeImage(12)">🗑️ Remover</button>
+                        </div>
+                        <img class="uploaded-image" id="preview-12" alt="Preview">
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 13 -->
+                <div class="step" data-step="13">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 2 - PASSO 13</div>
+                        <div class="step-title">Teste e Customização</div>
+                        <div class="step-duration">⏱️ Duração: 25 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎮 Testar o Jogo</h3>
+                        <p>Certifica-te que:</p>
+                        <ul>
+                            <li>✅ O jogador move-se</li>
+                            <li>✅ Consegues disparar</li>
+                            <li>✅ Chave aparece</li>
+                            <li>✅ Inimigos aparecem quando apanhas a chave</li>
+                            <li>✅ Porta aparece</li>
+                            <li>✅ Consegues passar de nível</li>
+                            <li>✅ Boss aparece no nível 3</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎨 Ideias de Customização</h3>
+                        
+                        <h4>Fácil:</h4>
+                        <ul>
+                            <li>Mudar cores das sprites</li>
+                            <li>Ajustar velocidades</li>
+                            <li>Mudar número de vidas</li>
+                            <li>Mudar pontos</li>
+                        </ul>
+
+                        <h4>Médio:</h4>
+                        <ul>
+                            <li>Adicionar sons</li>
+                            <li>Criar power-ups</li>
+                            <li>Mudar tamanho das sprites</li>
+                        </ul>
+
+                        <h4>Avançado:</h4>
+                        <ul>
+                            <li>Adicionar 4º nível</li>
+                            <li>Criar inimigos que atiram</li>
+                            <li>Sistema de tempo</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 Dica:</strong> Circular pela sala ajudando os alunos individualmente!
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                        <button class="nav-btn next-btn" onclick="nextStep()">Próximo ➡️</button>
+                    </div>
+                </div>
+
+                <!-- PASSO 14 -->
+                <div class="step" data-step="14">
+                    <div class="step-header">
+                        <div class="step-number">📚 SESSÃO 2 - PASSO 14</div>
+                        <div class="step-title">Apresentação Final</div>
+                        <div class="step-duration">⏱️ Duração: 15 minutos</div>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🎭 Mostrar ao Mundo!</h3>
+                        <p>3-5 voluntários apresentam suas versões:</p>
+                        <ul>
+                            <li>Mostrar o jogo no projetor</li>
+                            <li>Explicar o que customizaram</li>
+                            <li>Classe joga e dá feedback</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-section">
+                        <h3>🏆 Celebração</h3>
+                        <p>Parabéns a todos! Criaram um jogo completo do zero!</p>
+                    </div>
+
+                    <div class="success-box">
+                        <h3>✨ O que aprendemos</h3>
+                        <ul>
+                            <li>✅ Variáveis e tipos</li>
+                            <li>✅ Funções</li>
+                            <li>✅ Condicionais (if/else)</li>
+                            <li>✅ Eventos</li>
+                            <li>✅ Colisões</li>
+                            <li>✅ Sprites e movimento</li>
+                            <li>✅ Lógica de jogo</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>🔜 Próximos Passos</h3>
+                        <p>Os alunos podem:</p>
+                        <ul>
+                            <li>Continuar a melhorar o jogo em casa</li>
+                            <li>Partilhar com amigos e família</li>
+                            <li>Explorar outros tutoriais do MakeCode</li>
+                            <li>Começar a criar jogos próprios!</li>
+                        </ul>
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev-btn" onclick="prevStep()">⬅️ Anterior</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="action-buttons">
+                <button class="action-btn save-btn" onclick="saveProgress()">
+                    💾 Guardar Progresso
+                </button>
+                <button class="action-btn export-btn" onclick="exportToPDF()">
+                    📄 Exportar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificação -->
+    <div class="notification" id="notification">
+        Progresso guardado! ✅
+    </div>
+
+    <!-- Script html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        let currentStep = 1;
+        let currentSession = 1;
+        const totalSteps = 14;
+        let uploadedImages = {};
+
+        // Carregar progresso salvo
+        window.onload = function() {
+            loadProgress();
+            updateProgress();
+        };
+
+        function selectSession(sessionNum) {
+            currentSession = sessionNum;
+            
+            // Atualizar botões
+            document.querySelectorAll('.session-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Mostrar/esconder sessões
+            document.getElementById('session1').style.display = sessionNum === 1 ? 'block' : 'none';
+            document.getElementById('session2').style.display = sessionNum === 2 ? 'block' : 'none';
+            
+            // Resetar para primeiro passo da sessão
+            if (sessionNum === 1) {
+                currentStep = 1;
+            } else {
+                currentStep = 7;
+            }
+            
+            showStep(currentStep);
+            updateProgress();
+        }
+
+        function showStep(stepNum) {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            const targetStep = document.querySelector(`[data-step="${stepNum}"]`);
+            if (targetStep) {
+                targetStep.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+            
+            currentStep = stepNum;
+            updateProgress();
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+                
+                // Mudar de sessão automaticamente
+                if (currentStep === 7 && currentSession === 1) {
+                    selectSessionDirect(2);
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+                
+                // Mudar de sessão automaticamente
+                if (currentStep === 6 && currentSession === 2) {
+                    selectSessionDirect(1);
+                }
+            }
+        }
+
+        function selectSessionDirect(sessionNum) {
+            currentSession = sessionNum;
+            
+            document.querySelectorAll('.session-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.session-btn')[sessionNum - 1].classList.add('active');
+            
+            document.getElementById('session1').style.display = sessionNum === 1 ? 'block' : 'none';
+            document.getElementById('session2').style.display = sessionNum === 2 ? 'block' : 'none';
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling.querySelector('code');
+            const text = codeBlock.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = '✅ Copiado!';
+                setTimeout(() => {
+                    button.textContent = '📋 Copiar';
+                }, 2000);
+            });
+        }
+
+        function handleImageUpload(event, stepNum) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById(`preview-${stepNum}`);
+                    const removeBtn = document.getElementById(`remove-${stepNum}`);
+                    
+                    preview.src = e.target.result;
+                    preview.classList.add('show');
+                    removeBtn.classList.add('show');
+                    
+                    // Guardar imagem
+                    uploadedImages[stepNum] = e.target.result;
+                    saveProgress();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage(stepNum) {
+            const preview = document.getElementById(`preview-${stepNum}`);
+            const removeBtn = document.getElementById(`remove-${stepNum}`);
+            const input = document.getElementById(`image-${stepNum}`);
+            
+            preview.src = '';
+            preview.classList.remove('show');
+            removeBtn.classList.remove('show');
+            input.value = '';
+            
+            delete uploadedImages[stepNum];
+            saveProgress();
+        }
+
+        function saveProgress() {
+            const data = {
+                currentStep: currentStep,
+                currentSession: currentSession,
+                uploadedImages: uploadedImages
+            };
+            
+            localStorage.setItem('labirintoProgress', JSON.stringify(data));
+            showNotification('Progresso guardado! ✅');
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('labirintoProgress');
+            if (saved) {
+                const data = JSON.parse(saved);
+                currentStep = data.currentStep || 1;
+                currentSession = data.currentSession || 1;
+                uploadedImages = data.uploadedImages || {};
+                
+                // Restaurar imagens
+                for (let stepNum in uploadedImages) {
+                    const preview = document.getElementById(`preview-${stepNum}`);
+                    const removeBtn = document.getElementById(`remove-${stepNum}`);
+                    if (preview) {
+                        preview.src = uploadedImages[stepNum];
+                        preview.classList.add('show');
+                        removeBtn.classList.add('show');
+                    }
+                }
+                
+                selectSessionDirect(currentSession);
+                showStep(currentStep);
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function exportToPDF() {
+            const element = document.querySelector('.main-content');
+            const opt = {
+                margin: 10,
+                filename: 'Guia_Labirinto_MakeCode.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            showNotification('A gerar PDF... ⏳');
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                showNotification('PDF exportado! ✅');
+            });
+        }
+    </script>
+</body>
+</html>
